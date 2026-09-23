@@ -4,7 +4,7 @@ Source of truth: `CANDIDATE_PACK_PM.md` (supplied as a .docx). Everything below 
 taken from that document; anything that is our own note rather than the brief
 is marked **[our note]**.
 
-Status: setup only. No data analysis and no roadmap decisions yet.
+Status: data ingested and profiled. No claims calculated and no roadmap decisions yet.
 
 ---
 
@@ -198,12 +198,23 @@ Checked 2026-09-23 with `scripts/check_connection.py`:
   - Data access matches what the pack describes (same base ID, tables
     reachable), so the analysis is unaffected. Only the credential path differs.
 
-## Repo layout (so far)
+### Ingestion findings (2026-09-23)
 
-```
-.env               # git-ignored; AIRTABLE_TOKEN, AIRTABLE_BASE_ID
-.env.example       # placeholder template
-.gitignore         # .env, data/raw/, cache/
-PROJECT_NOTES.md   # this file
-scripts/check_connection.py   # raw connectivity check (GET only, prints no record data)
-```
+- **Schema metadata endpoint returns HTTP 403**
+  (`/v0/meta/bases/{id}/tables`, which needs `schema.bases:read`). Field types,
+  select-option lists and the Airtable primary field are therefore **inferred
+  from values**. Consequence: a field that is empty in every record, or a
+  select option that is never used, is invisible to us.
+- **The Findings table returns 0 records** (HTTP 200). It exists but is empty
+  for the credential in use.
+- Full pull: 8 tables, 932 records, 15 requests, no 429s or retries.
+  Pagination was verified: page sizes of 100/100/100/50 for Applications, and
+  all record IDs unique across pages.
+- **The GitHub repo is public.** The raw data and the raw-record sample contain
+  candidate names, emails and phone numbers, so `data/` is git-ignored. Only
+  code and the PII-masked profile are committed. The container is ephemeral,
+  so `data/` is regenerated with `scripts/ingest.py`.
+
+## Repo layout
+
+See the table in [`README.md`](README.md).

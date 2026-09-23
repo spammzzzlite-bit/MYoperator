@@ -3,9 +3,10 @@
 .env.*
 !.env.example
 
-# Local data cache (raw pulls from Airtable)
-data/raw/
-cache/
+# Local data (raw Airtable snapshot + raw record samples). Contains candidate
+# personal data and the repo is public, so none of it is committed.
+# Regenerate with the pipeline in README.md.
+data/
 
 # Python
 __pycache__/
